@@ -1,10 +1,13 @@
 package com.tpe.service;
 
 import com.tpe.domain.Customer;
+import com.tpe.dto.CustomerDTO;
 import com.tpe.exception.ConflictException;
 import com.tpe.exception.ResourceNotFoundException;
 import com.tpe.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -36,4 +39,41 @@ public class CustomerService {
                 () -> new ResourceNotFoundException("Customer not found by id: " + id));
         return customer;
     }
+
+    public void deleteCustomerById(Long id) {
+        Customer customer=getCustomerById(id);
+        customerRepository.delete(customer);
+    }
+
+    public CustomerDTO getCustomerDTOById(Long id) {
+        Customer customer=getCustomerById(id);
+//        CustomerDTO customerDTO=new CustomerDTO();
+//        customerDTO.setName(customerDTO.getName());
+//        customerDTO.setLastName(customerDTO.getLastName());
+//        customerDTO.setEmail(customerDTO.getEmail());
+//        customerDTO.setPhone(customerDTO.getPhone());
+        CustomerDTO customerDTO=new CustomerDTO(customer);
+        return customerDTO;
+    }
+
+    public void updateCustomerById(Long id, CustomerDTO customerDTO) {
+        Customer customer=getCustomerById(id);
+        boolean isExistsEmail=customerRepository.existsByEmail(customer.getEmail());
+        if (isExistsEmail && !customerDTO.getEmail().equals(customer.getEmail())){
+            throw new ConflictException("Email is already in use: "+customerDTO.getEmail());
+        }
+        customer.setName(customerDTO.getName());
+        customer.setLastName(customerDTO.getLastName());
+        customer.setEmail(customerDTO.getEmail());
+        customer.setPhone(customerDTO.getPhone());
+        customerRepository.save(customer);
+    }
+
+    public Page<Customer> getAllCustomerByPage(Pageable pageable) {
+        Page<Customer> customerPage=customerRepository.findAll(pageable);
+        return customerPage;
+    }
+
+
+
 }

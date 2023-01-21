@@ -1,8 +1,14 @@
 package com.tpe.controller;
 
 import com.tpe.domain.Customer;
+import com.tpe.dto.CustomerDTO;
+import com.tpe.repository.CustomerRepository;
 import com.tpe.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +22,8 @@ public class CustomerController {
 
     @Autowired
     private CustomerService customerService;
+    @Autowired
+    private CustomerRepository customerRepository;
 
     // 1- Spring Boot u selamlama -> http://localhost:8080/customers/greet
     @GetMapping("/greet")
@@ -48,5 +56,43 @@ public class CustomerController {
     // odev1: id ile tek bir customer getirme -> http://localhost:8080/customers/custom?id=1
 
     // odev2: id ile bir customer i silme -> http://localhost:8080/customers/custom?id=1
+    // Customer is deleted successfully mesaji donsun
+
+    // id ile tek bir customer getirme -> http://localhost:8080/customers/custom?id=1
+    @GetMapping("/custom")
+    public ResponseEntity<CustomerDTO> getCustomerByIdRequestParam(@RequestParam("id") Long id){
+        CustomerDTO customerDTO=customerService.getCustomerDTOById(id);
+        return ResponseEntity.ok(customerDTO);
+    }
+
+    // id ile bir customer i silme -> http://localhost:8080/customers/custom?id=1
+    //     Customer is deleted successfully mesaji donsun
+    @DeleteMapping("/custom")
+    public ResponseEntity<String> deleteCustomerById(@RequestParam("id") Long id){
+        String message="Customer is deleted successfully";
+        customerService.deleteCustomerById(id);
+        return ResponseEntity.ok(message);
+    }
+
+    // 5- id ile customer i update etme -> http://localhost:8080/customers/update/1
+    @PutMapping("/update/{id}")
+    public ResponseEntity<String> updateCustomerById(@PathVariable("id") Long id,@RequestBody CustomerDTO customerDTO){
+        customerService.updateCustomerById(id,customerDTO);
+        return ResponseEntity.ok("Customer is updated successfully");
+    }
+
+    // pagination?
+    // 6- tum customer lari page page gosterme
+    // http://localhost:8080/customers/page?page=1&size=2&sort=id&direction=ASC
+    @GetMapping("/page")
+    public ResponseEntity<Page<Customer>> getAllCustomerByPage(@RequestParam("page") int page, // hangi sayfa
+                                                               @RequestParam("size") int size, // her sayfada kac adet
+                                                               @RequestParam("sort") String prop, // siralama fieldi
+                                                               @RequestParam("direction") Sort.Direction direction){ // azalan, artan
+        Pageable pageable= PageRequest.of(page,size,Sort.by(direction,prop));
+        Page<Customer> customerPage=customerService.getAllCustomerByPage(pageable);
+        return ResponseEntity.ok(customerPage);
+    }
+
 
 }
