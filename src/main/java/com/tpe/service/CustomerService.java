@@ -58,7 +58,7 @@ public class CustomerService {
 
     public void updateCustomerById(Long id, CustomerDTO customerDTO) {
         Customer customer=getCustomerById(id);
-        boolean isExistsEmail=customerRepository.existsByEmail(customer.getEmail());
+        boolean isExistsEmail=customerRepository.existsByEmail(customerDTO.getEmail());
         if (isExistsEmail && !customerDTO.getEmail().equals(customer.getEmail())){
             throw new ConflictException("Email is already in use: "+customerDTO.getEmail());
         }
@@ -75,5 +75,18 @@ public class CustomerService {
     }
 
 
+    public List<Customer> getAllCustomerByName(String name) {
+        List<Customer> customers=customerRepository.findByName(name);
+        return customers;
 
+    }
+
+    public List<Customer> getAllCustomerByFullName(String name, String lastName) {
+        return customerRepository.findByNameAndLastName(name,lastName);
+    }
+
+    public List<Customer> getAllCustomerByNameLike(String name) {
+        String lowerName=name.toLowerCase();
+        return customerRepository.findAllByNameLike(lowerName);
+    }
 }

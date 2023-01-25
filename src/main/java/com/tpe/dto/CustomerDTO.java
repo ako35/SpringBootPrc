@@ -21,7 +21,6 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 public class CustomerDTO {
 
-
     @NotNull(message = "First name can not be null")
     @NotBlank(message = "First name can not be space")
     @Size(min = 2, max = 50)

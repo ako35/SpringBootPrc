@@ -85,14 +85,40 @@ public class CustomerController {
     // 6- tum customer lari page page gosterme
     // http://localhost:8080/customers/page?page=1&size=2&sort=id&direction=ASC
     @GetMapping("/page")
-    public ResponseEntity<Page<Customer>> getAllCustomerByPage(@RequestParam("page") int page, // hangi sayfa
+    public ResponseEntity<Page<Customer>> getAllCustomerByPage(@RequestParam(required = false,value = "page", defaultValue = "0") int page,
                                                                @RequestParam("size") int size, // her sayfada kac adet
                                                                @RequestParam("sort") String prop, // siralama fieldi
-                                                               @RequestParam("direction") Sort.Direction direction){ // azalan, artan
+                                                               @RequestParam("direction") Sort.Direction direction){ // ASC, DESC
         Pageable pageable= PageRequest.of(page,size,Sort.by(direction,prop));
-        Page<Customer> customerPage=customerService.getAllCustomerByPage(pageable);
-        return ResponseEntity.ok(customerPage);
+        Page<Customer> customersPage=customerService.getAllCustomerByPage(pageable);
+        return ResponseEntity.ok(customersPage);
     }
+
+    // 7- name ile customer getirme -> http://localhost:8080/customers/query?name=Jack
+    @GetMapping("/query")
+    public ResponseEntity<List<Customer>> getAllCustomerByName(@RequestParam("name") String name){
+        List<Customer> customers=customerService.getAllCustomerByName(name);
+        return ResponseEntity.ok(customers);
+    }
+
+    // 8- http://localhost:8080/customers/fullquery?name=Jack&lastName=Sparrow
+    @GetMapping("/fullquery")
+    public ResponseEntity<List<Customer>> getAllCustomerByFullName(@RequestParam("name") String name,
+                                                                   @RequestParam("lastName") String lastName){
+        List<Customer> customers=customerService.getAllCustomerByFullName(name,lastName);
+        return ResponseEntity.ok(customers);
+    }
+
+    // 9- ismi ... iceren customerlar: http://localhost:8080/customers/jpql?name=Ja
+    @GetMapping("/jpql")
+    public ResponseEntity<List<Customer>> getAllCustomerNameLike(@RequestParam("name") String name){
+        List<Customer> customers=customerService.getAllCustomerByNameLike(name);
+        return ResponseEntity.ok(customers);
+    }
+
+    // odev: requestle gelen kelime name veya lastname inde gecen customerlari dondurur.
+    // http://localhost:8080/customers/search?word=pa
+
 
 
 }
